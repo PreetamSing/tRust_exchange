@@ -1,0 +1,3 @@
+plugins:
+  router.authenticator:
+    rsa_pub_key: "RSA Pub key"
