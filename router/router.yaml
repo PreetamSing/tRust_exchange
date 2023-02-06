@@ -1,3 +1,3 @@
 plugins:
   router.authenticator:
-    rsa_pub_key: "RSA Pub key"
+    pub_key_file: "./keys/rsa.pub" # Public key at this location shall be placed by deployment setup.
