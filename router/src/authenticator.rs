@@ -3,8 +3,6 @@
 use apollo_router::plugin::Plugin;
 use apollo_router::plugin::PluginInit;
 use apollo_router::register_plugin;
-use apollo_router::services::execution;
-use apollo_router::services::subgraph;
 use apollo_router::services::supergraph;
 use jwt_simple::prelude::*;
 use schemars::JsonSchema;
@@ -75,21 +73,6 @@ impl Plugin for Authenticator {
             .service(service)
             .boxed()
     }
-
-    fn execution_service(&self, service: execution::BoxService) -> execution::BoxService {
-        //This is the default implementation and does not modify the default service.
-        // The trait also has this implementation, and we just provide it here for illustration.
-        println!("Inside `execution_service`");
-        service
-    }
-
-    // Called for each subgraph
-    fn subgraph_service(&self, name: &str, service: subgraph::BoxService) -> subgraph::BoxService {
-        println!("Inside \"{}\"`subgraph_service`", name);
-        // Always use service builder to compose your plugins.
-        // It provides off the shelf building blocks for your plugin.
-        ServiceBuilder::new().service(service).boxed()
-    }
 }
 
 // This macro allows us to use it in our plugin registry!
@@ -98,3 +81,32 @@ impl Plugin for Authenticator {
 // In order to keep the plugin names consistent,
 // we use using the `Reverse domain name notation`
 register_plugin!("router", "authenticator", Authenticator);
+
+#[cfg(test)]
+mod tests {
+    use apollo_router::graphql;
+    use apollo_router::plugin::{test, Plugin};
+    use apollo_router::services::supergraph;
+    use std::fs;
+
+    use super::*;
+
+    #[tokio::test]
+    async fn validates_token_correctly() -> Result<(), Box<dyn std::error::Error>> {
+        let key_pair = RS256KeyPair::generate(4096)?;
+        let pub_key = key_pair.public_key();
+
+        fs::create_dir("./test_keys")?;
+        fs::write("rsa.pub", pub_key.to_pem()?)?;
+        let config = serde_json::json!({
+            "plugins": {
+                "router.authenticator": {
+                    "pub_key_file": "./test_keys/rsa.pub",
+                }
+            }
+        });
+
+        // let mock_service = test::MockSupergraphService
+        Ok(())
+    }
+}
