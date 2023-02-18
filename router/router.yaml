@@ -1,3 +1,5 @@
 plugins:
   router.authenticator:
     pub_key_file: "./keys/rsa.pub" # Public key at this location shall be placed by deployment setup.
+    expiry_secs: 3600
+    leeway: 0
