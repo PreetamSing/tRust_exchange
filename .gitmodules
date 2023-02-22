@@ -1,3 +1,6 @@
-[submodule "tREx_common"]
+[submodule "trex_common"]
 	path = trex_common
 	url = https://github.com/PreetamSing/trex_common
+[submodule "trex_auth"]
+	path = trex_auth
+	url = https://github.com/PreetamSing/trex_auth
